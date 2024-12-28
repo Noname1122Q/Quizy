@@ -53,7 +53,7 @@ import {
 } from "@google/generative-ai";
 
 const gemini_api_key =
-  process.env.GEMINI_API_KEY || "AIzaSyCg2qAELLbEdfIbofBPwKwcmG9_pMx951M";
+  process.env.GEMINI_API_KEY;
 
 const genAI = new GoogleGenerativeAI(gemini_api_key);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
