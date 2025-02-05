@@ -22,6 +22,15 @@ type Props = {
 };
 
 const OpenEnded = ({ game }: Props) => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
   const [questionIndex, setQuestionIndex] = useState<number>(0);
   const [hasEnded, setHasEnded] = useState<boolean>(false);
   const [now, setNow] = useState<Date>(new Date());

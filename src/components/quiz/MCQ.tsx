@@ -24,6 +24,16 @@ type Props = {
 };
 
 const MCQ = ({ game }: Props) => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
+
   const [questionIndex, setQuestionIndex] = useState<number>(0);
   const [selectedChoice, setSelectedChoice] = useState<number>(0);
   const [numberOfCorrect, setNumberOfCorrect] = useState<number>(0);

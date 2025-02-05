@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -34,6 +34,15 @@ type Props = {};
 type Input = z.infer<typeof quizCreationSchema>;
 
 const QuizCreation = ({}: Props) => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
   const [showLoader, setShowLoader] = useState<boolean>(false);
   const [finished, setFinished] = useState<boolean>(false);
   const router = useRouter();
