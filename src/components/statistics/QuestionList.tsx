@@ -1,6 +1,5 @@
 "use client";
 import { Question } from "@prisma/client";
-import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -16,16 +15,6 @@ type Props = {
 };
 
 const QuestionList = ({ questions }: Props) => {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return null;
-  }
-
   const gameType = questions[0].questionType;
 
   return (

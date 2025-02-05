@@ -1,39 +1,30 @@
 "use client";
-import { Game, Question } from "@prisma/client";
-import { BarChart, ChevronRight, Loader2, Timer } from "lucide-react";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button, buttonVariants } from "../ui/button";
-import MCQCounter from "./MCQCounter";
+import { useToast } from "@/hooks/use-toast";
+import { cn, formatTime } from "@/lib/utils";
+import { checkAnswerSchema } from "@/schemas/form/quiz";
+import { Game, Question } from "@prisma/client";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { z } from "zod";
-import { checkAnswerSchema } from "@/schemas/form/quiz";
-import { useToast } from "@/hooks/use-toast";
-import Link from "next/link";
-import { cn, formatTime } from "@/lib/utils";
 import { differenceInSeconds } from "date-fns";
+import { BarChart, ChevronRight, Loader2, Timer } from "lucide-react";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { z } from "zod";
+import { Button, buttonVariants } from "../ui/button";
+import MCQCounter from "./MCQCounter";
+import { gameEndedSchema } from "@/schemas/otherShemas";
 
 type Props = {
   game: Game & { questions: Pick<Question, "id" | "options" | "question">[] };
 };
 
 const MCQ = ({ game }: Props) => {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return null;
-  }
-
   const [questionIndex, setQuestionIndex] = useState<number>(0);
   const [selectedChoice, setSelectedChoice] = useState<number>(0);
   const [numberOfCorrect, setNumberOfCorrect] = useState<number>(0);
@@ -66,6 +57,19 @@ const MCQ = ({ game }: Props) => {
   });
   const isChecking = isCorrectAnswerMutation.isPending;
 
+  const updateGameMutation = useMutation({
+    mutationFn: async (timeEnded: Date) => {
+      const payload: z.infer<typeof gameEndedSchema> = {
+        gameId: game.id,
+        timeEnded: timeEnded,
+      };
+      await axios.post(`/api/game/end`, payload);
+    },
+    onError: () => {
+      toast({ title: "Failed to save game time.", variant: "destructive" });
+    },
+  });
+
   const handleNext = useCallback(() => {
     if (isChecking) return;
     isCorrectAnswerMutation.mutate(undefined, {
@@ -80,6 +84,7 @@ const MCQ = ({ game }: Props) => {
         }
 
         if (questionIndex == game.questions.length - 1) {
+          updateGameMutation.mutate(new Date());
           setHasEnded(true);
           return;
         }
@@ -92,6 +97,7 @@ const MCQ = ({ game }: Props) => {
     isChecking,
     questionIndex,
     game.questions.length,
+    updateGameMutation,
   ]);
 
   useEffect(() => {
