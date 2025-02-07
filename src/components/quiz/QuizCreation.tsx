@@ -131,11 +131,10 @@ const QuizCreation = ({}: Props) => {
                         min={1}
                         max={10}
                         onChange={(e) => {
-                          if (isNaN(parseInt(e.target.value))) {
-                          }
+                          const value = e.target.value;
                           form.setValue(
                             "amountOfQuestions",
-                            parseInt(e.target.value)
+                            value ? parseInt(value) : 0
                           );
                         }}
                       />
